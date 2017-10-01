@@ -1,9 +1,13 @@
 package br.ufpe.cin.if710.podcast.ui;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.ufpe.cin.if710.podcast.R;
+import br.ufpe.cin.if710.podcast.db.PodcastDBHelper;
+import br.ufpe.cin.if710.podcast.db.PodcastProvider;
+import br.ufpe.cin.if710.podcast.db.PodcastProviderContract;
 import br.ufpe.cin.if710.podcast.domain.ItemFeed;
 import br.ufpe.cin.if710.podcast.domain.XmlFeedParser;
 import br.ufpe.cin.if710.podcast.ui.adapter.XmlFeedAdapter;
@@ -87,6 +94,9 @@ public class MainActivity extends Activity {
             List<ItemFeed> itemList = new ArrayList<>();
             try {
                 itemList = XmlFeedParser.parse(getRssFeed(params[0]));
+                for (ItemFeed itemFeed : itemList) {
+                    storesItem(itemFeed);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (XmlPullParserException e) {
@@ -140,5 +150,25 @@ public class MainActivity extends Activity {
             }
         }
         return rssFeed;
+    }
+
+    private void storesItem(ItemFeed itemFeed) {
+        ContentValues contentValues = new ContentValues();
+        // Armazenar o item no db.
+        contentValues.put(PodcastProviderContract.DATE, isValidString(itemFeed.getPubDate()));
+        contentValues.put(PodcastProviderContract.DESCRIPTION, isValidString(itemFeed.getDescription()));
+        contentValues.put(PodcastProviderContract.DOWNLOAD_LINK, isValidString(itemFeed.getDownloadLink()));
+        contentValues.put(PodcastProviderContract.EPISODE_URI, "");
+        contentValues.put(PodcastProviderContract.EPISODE_LINK, isValidString(itemFeed.getLink()));
+        contentValues.put(PodcastProviderContract.TITLE, isValidString(itemFeed.getTitle()));
+
+        Uri uri = getContentResolver().insert(PodcastProviderContract.EPISODE_LIST_URI, contentValues);
+        Log.d("STORE ITEM", "Storing item: " + uri.toString());
+    }
+
+    private boolean isValidString(String string) {
+        if (string != null || string.equals(""))
+            return false;
+        return true;
     }
 }

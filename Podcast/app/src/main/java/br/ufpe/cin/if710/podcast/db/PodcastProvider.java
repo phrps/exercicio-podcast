@@ -6,13 +6,22 @@ import android.database.Cursor;
 import android.net.Uri;
 
 public class PodcastProvider extends ContentProvider {
+    private PodcastDBHelper dbHelper;
+
     public PodcastProvider() {
     }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        // Implement this to handle requests to delete one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        int nDeletedRows = 0;
+        // Verifica se uri é valida para recuperar quantidade de linhas deletadas
+        if (validUri(uri)) {
+            nDeletedRows = dbHelper.getWritableDatabase().delete(PodcastDBHelper.DATABASE_TABLE, selection, selectionArgs);
+        } else {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        return nDeletedRows;
     }
 
     @Override
@@ -24,27 +33,54 @@ public class PodcastProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        // TODO: Implement this to handle requests to insert a new row.
-        throw new UnsupportedOperationException("Not yet implemented");
+        //Insere no DB recuperando o identificador se a uri é valida.
+        Uri returnUri = null;
+        if (validUri(uri)) {
+            long ID = dbHelper.getWritableDatabase().insert(PodcastDBHelper.DATABASE_TABLE, null, values);
+            //Recupera a uri de acesso do item criado
+            returnUri = Uri.withAppendedPath(PodcastProviderContract.EPISODE_LIST_URI, Long.toString(ID));
+        } else {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        return returnUri;
     }
 
     @Override
     public boolean onCreate() {
-        // TODO: Implement this to initialize your content provider on startup.
+        dbHelper = PodcastDBHelper.getInstance(getContext());
         return false;
     }
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
-        // TODO: Implement this to handle query requests from clients.
-        throw new UnsupportedOperationException("Not yet implemented");
+        Cursor cursor = null;
+        //Realiza a query se a uri for valida
+        if (validUri(uri)) {
+            cursor = dbHelper.getReadableDatabase().query(PodcastDBHelper.DATABASE_TABLE, projection, selection, selectionArgs, null, null, sortOrder);
+        } else {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        return cursor;
     }
 
     @Override
     public int update(Uri uri, ContentValues values, String selection,
                       String[] selectionArgs) {
-        // TODO: Implement this to handle requests to update one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        int nUpdatedRows = 0;
+        // Verifica se uri é valida para recuperar quantidade de linhas atualizadas
+        if (validUri(uri)) {
+            nUpdatedRows = dbHelper.getWritableDatabase().update(PodcastDBHelper.DATABASE_TABLE, values, selection, selectionArgs);
+        } else {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+
+        return nUpdatedRows;
+    }
+
+    private boolean validUri(Uri uri){
+        return uri.getLastPathSegment().equals(PodcastProviderContract.EPISODE_TABLE);
     }
 }

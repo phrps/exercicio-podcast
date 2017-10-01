@@ -9,6 +9,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.util.Log;
+
 public class XmlFeedParser {
 
     public static List<ItemFeed> parse(String xmlFeed) throws XmlPullParserException, IOException {
@@ -115,8 +117,8 @@ public class XmlFeedParser {
     public static String readEnclosure(XmlPullParser parser)
             throws IOException, XmlPullParserException {
         //parser.require(XmlPullParser.START_TAG, null, "enclosure");
-        String data = "implementar...";
-        //parser.require(XmlPullParser.END_TAG, null, "enclosure");
+        String data = parser.getAttributeValue(null, "url");
+        parser.nextTag();
         return data;
     }
 
