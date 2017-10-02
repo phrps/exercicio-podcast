@@ -9,7 +9,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.util.Log;
 
 public class XmlFeedParser {
 
@@ -116,9 +115,8 @@ public class XmlFeedParser {
     // Processa tags do tipo <enclosure> para obter dados do episodio
     public static String readEnclosure(XmlPullParser parser)
             throws IOException, XmlPullParserException {
-        //parser.require(XmlPullParser.START_TAG, null, "enclosure");
+        parser.require(XmlPullParser.START_TAG, null, "enclosure");
         String data = parser.getAttributeValue(null, "url");
-        parser.nextTag();
         return data;
     }
 

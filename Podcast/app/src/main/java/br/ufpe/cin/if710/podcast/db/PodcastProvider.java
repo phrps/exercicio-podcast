@@ -17,9 +17,9 @@ public class PodcastProvider extends ContentProvider {
         // Verifica se uri é valida para recuperar quantidade de linhas deletadas
         if (validUri(uri)) {
             nDeletedRows = dbHelper.getWritableDatabase().delete(PodcastDBHelper.DATABASE_TABLE, selection, selectionArgs);
-        } else {
+        } /*else {
             throw new UnsupportedOperationException("Not yet implemented");
-        }
+        }*/
 
         return nDeletedRows;
     }
@@ -39,9 +39,9 @@ public class PodcastProvider extends ContentProvider {
             long ID = dbHelper.getWritableDatabase().insert(PodcastDBHelper.DATABASE_TABLE, null, values);
             //Recupera a uri de acesso do item criado
             returnUri = Uri.withAppendedPath(PodcastProviderContract.EPISODE_LIST_URI, Long.toString(ID));
-        } else {
+        } /*else {
             throw new UnsupportedOperationException("Not yet implemented");
-        }
+        }*/
 
         return returnUri;
     }
@@ -59,9 +59,9 @@ public class PodcastProvider extends ContentProvider {
         //Realiza a query se a uri for valida
         if (validUri(uri)) {
             cursor = dbHelper.getReadableDatabase().query(PodcastDBHelper.DATABASE_TABLE, projection, selection, selectionArgs, null, null, sortOrder);
-        } else {
+        } /*else {
             throw new UnsupportedOperationException("Not yet implemented");
-        }
+        }*/
 
         return cursor;
     }
@@ -73,9 +73,9 @@ public class PodcastProvider extends ContentProvider {
         // Verifica se uri é valida para recuperar quantidade de linhas atualizadas
         if (validUri(uri)) {
             nUpdatedRows = dbHelper.getWritableDatabase().update(PodcastDBHelper.DATABASE_TABLE, values, selection, selectionArgs);
-        } else {
+        } /*else {
             throw new UnsupportedOperationException("Not yet implemented");
-        }
+        }*/
 
         return nUpdatedRows;
     }

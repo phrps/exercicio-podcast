@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
     private class DownloadXmlTask extends AsyncTask<String, Void, List<ItemFeed>> {
         @Override
         protected void onPreExecute() {
-            Toast.makeText(getApplicationContext(), "iniciando...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Iniciando app...", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -89,13 +89,10 @@ public class MainActivity extends Activity {
             List<ItemFeed> itemList = new ArrayList<>();
             try {
                 itemList = XmlFeedParser.parse(getRssFeed(params[0]));
-                for (ItemFeed itemFeed : itemList) {
-                    storesItem(itemFeed);
-                }
+
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (XmlPullParserException e) {
-                e.printStackTrace();
             }
             return itemList;
         }
@@ -103,6 +100,10 @@ public class MainActivity extends Activity {
         @Override
         protected void onPostExecute(List<ItemFeed> feed) {
             Toast.makeText(getApplicationContext(), "terminando...", Toast.LENGTH_SHORT).show();
+
+            for (ItemFeed itemFeed : feed) {
+                storesItem(itemFeed);
+            }
 
             //Adapter Personalizado
             XmlFeedAdapter adapter = new XmlFeedAdapter(getApplicationContext(), R.layout.itemlista, feed);
@@ -162,8 +163,9 @@ public class MainActivity extends Activity {
     }
 
     private boolean isValidString(String string) {
-        if (string != null || string.equals(""))
+        if (string == null || string.equals("")) {
             return false;
+        }
         return true;
     }
 }
