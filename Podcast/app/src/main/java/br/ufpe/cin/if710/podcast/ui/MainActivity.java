@@ -2,8 +2,10 @@ package br.ufpe.cin.if710.podcast.ui;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.database.Cursor;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,7 +42,6 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         items = (ListView) findViewById(R.id.items);
     }
 
@@ -89,6 +90,8 @@ public class MainActivity extends Activity {
             List<ItemFeed> itemList = new ArrayList<>();
             try {
                 itemList = XmlFeedParser.parse(getRssFeed(params[0]));
+                // Armazena lista de itemFeed no db
+                storesList(itemList);
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -101,16 +104,13 @@ public class MainActivity extends Activity {
         protected void onPostExecute(List<ItemFeed> feed) {
             Toast.makeText(getApplicationContext(), "terminando...", Toast.LENGTH_SHORT).show();
 
-            for (ItemFeed itemFeed : feed) {
-                storesItem(itemFeed);
-            }
-
             //Adapter Personalizado
+            //feed = updateListView();
             XmlFeedAdapter adapter = new XmlFeedAdapter(getApplicationContext(), R.layout.itemlista, feed);
 
-            //atualizar o list view
             items.setAdapter(adapter);
             items.setTextFilterEnabled(true);
+
             /*
             items.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -148,24 +148,60 @@ public class MainActivity extends Activity {
         return rssFeed;
     }
 
-    private void storesItem(ItemFeed itemFeed) {
-        ContentValues contentValues = new ContentValues();
-        // Armazenar o item no db.
-        contentValues.put(PodcastProviderContract.DATE, isValidString(itemFeed.getPubDate()));
-        contentValues.put(PodcastProviderContract.DESCRIPTION, isValidString(itemFeed.getDescription()));
-        contentValues.put(PodcastProviderContract.DOWNLOAD_LINK, isValidString(itemFeed.getDownloadLink()));
-        contentValues.put(PodcastProviderContract.EPISODE_URI, "");
-        contentValues.put(PodcastProviderContract.EPISODE_LINK, isValidString(itemFeed.getLink()));
-        contentValues.put(PodcastProviderContract.TITLE, isValidString(itemFeed.getTitle()));
-
-        Uri uri = getContentResolver().insert(PodcastProviderContract.EPISODE_LIST_URI, contentValues);
-        Log.d("STORE ITEM", "Storing item: " + uri.toString());
-    }
-
     private boolean isValidString(String string) {
         if (string == null || string.equals("")) {
             return false;
         }
         return true;
+    }
+
+    private void storesList(List<ItemFeed> feedList) {
+        for (ItemFeed itemFeed : feedList) {
+            ContentValues contentValues = new ContentValues();
+            // Armazenar o item no db.
+            contentValues.put(PodcastProviderContract.DATE, isValidString(itemFeed.getPubDate()));
+            contentValues.put(PodcastProviderContract.DESCRIPTION, isValidString(itemFeed.getDescription()));
+            contentValues.put(PodcastProviderContract.DOWNLOAD_LINK, isValidString(itemFeed.getDownloadLink()));
+            contentValues.put(PodcastProviderContract.EPISODE_URI, "");
+            contentValues.put(PodcastProviderContract.EPISODE_LINK, isValidString(itemFeed.getLink()));
+            contentValues.put(PodcastProviderContract.TITLE, isValidString(itemFeed.getTitle()));
+
+            getContentResolver().insert(PodcastProviderContract.EPISODE_LIST_URI, contentValues);
+
+            Log.d("STORE ITEM", "Storing item: " + itemFeed.getTitle());
+        }
+    }
+
+    // Atualiza a listView utilizando o DB
+    private List<ItemFeed> updateListView() {
+        List<ItemFeed> list = new ArrayList<>();
+        // uso de cursor para pegar os dados no bd.
+        Cursor cursor = getContentResolver().query(PodcastProviderContract.EPISODE_LIST_URI,null,null,null,null);
+        if (cursor != null && cursor.moveToFirst()) {
+                while (cursor.moveToNext()) {
+                    list.add(new ItemFeed(cursor.getString(cursor.getColumnIndex(PodcastProviderContract.TITLE)),
+                                          cursor.getString(cursor.getColumnIndex(PodcastProviderContract.EPISODE_LINK)),
+                                          cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DATE)),
+                                          cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DESCRIPTION)),
+                                          cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DOWNLOAD_LINK))));
+                    Log.d("LOAD ITEM", "Loading item: " + cursor.getString(cursor.getColumnIndex(PodcastProviderContract.TITLE)));
+                }
+            cursor.close();
+        }
+
+        return list;
+    }
+
+    public  boolean checkConnection() {
+        boolean connected;
+        ConnectivityManager conectivtyManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (conectivtyManager.getActiveNetworkInfo() != null
+                && conectivtyManager.getActiveNetworkInfo().isAvailable()
+                && conectivtyManager.getActiveNetworkInfo().isConnected()) {
+            connected = true;
+        } else {
+            connected = false;
+        }
+        return connected;
     }
 }
