@@ -1,21 +1,29 @@
 package br.ufpe.cin.if710.podcast.ui;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -124,6 +132,8 @@ public class MainActivity extends Activity {
         }
     }
 
+
+
     //TODO Opcional - pesquise outros meios de obter arquivos da internet
     private String getRssFeed(String feed) throws IOException {
         InputStream in = null;
@@ -177,15 +187,75 @@ public class MainActivity extends Activity {
         if (cursor != null && cursor.moveToFirst()) {
                 while (cursor.moveToNext()) {
                     list.add(new ItemFeed(cursor.getString(cursor.getColumnIndex(PodcastProviderContract.TITLE)),
-                                          cursor.getString(cursor.getColumnIndex(PodcastProviderContract.EPISODE_LINK)),
-                                          cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DATE)),
-                                          cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DESCRIPTION)),
-                                          cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DOWNLOAD_LINK))));
+                                            cursor.getString(cursor.getColumnIndex(PodcastProviderContract.EPISODE_LINK)),
+                                            cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DATE)),
+                                            cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DESCRIPTION)),
+                                            cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DOWNLOAD_LINK))));
                 }
             cursor.close();
         }
 
         return list;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter f = new IntentFilter(DownloadService.DOWNLOAD_COMPLETE);
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onDownloadCompleteEvent, f);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(onDownloadCompleteEvent);
+    }
+
+    private BroadcastReceiver onDownloadCompleteEvent=new BroadcastReceiver() {
+        public void onReceive(Context context, Intent i) {
+            Toast.makeText(context, "Download finalizado!", Toast.LENGTH_LONG).show();
+            Button button = (Button) findViewById(R.id.item_action);
+
+            List<ItemFeed> db = updateListView();
+            ItemFeed item = null;
+            for (int j = 0; j < db.size() && item == null; ++j) {
+                Log.d("Atualizar Uri", "Achou no db");
+                if (db.get(j).getDownloadLink().equals(i.getStringExtra("Downloaded"))) {
+                    // Atualiza DB e ativa botão de play
+                    button.setText("Play");
+                    button.setEnabled(true);
+
+
+                    File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    File audioFile = new File(root, Uri.parse(i.getStringExtra("Downloaded")).getLastPathSegment());
+
+                    item = db.get(j);
+                    item.setFileUri(Uri.parse("file://" + audioFile.getAbsolutePath()).toString());
+                    ContentValues contentValues = itemFeedToContentValue(item);
+
+                    String selection = PodcastProviderContract.TITLE + " =? AND " + PodcastProviderContract.DATE + " =? AND " +
+                            PodcastProviderContract.DESCRIPTION + " =? AND " + PodcastProviderContract.EPISODE_LINK + " =? AND " +
+                            PodcastProviderContract.DOWNLOAD_LINK + " =?";
+
+                    String[] selectionArgs = {item.getTitle(), item.getPubDate(), item.getDescription(), item.getLink(), item.getDownloadLink()};
+
+
+                    getContentResolver().update(PodcastProviderContract.EPISODE_LIST_URI, contentValues, selection, selectionArgs);
+                }
+            }
+    }
+    };
+
+    ContentValues itemFeedToContentValue(ItemFeed i) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(PodcastProviderContract.TITLE, i.getTitle());
+        contentValues.put(PodcastProviderContract.DATE, i.getPubDate());
+        contentValues.put(PodcastProviderContract.DESCRIPTION, i.getDescription());
+        contentValues.put(PodcastProviderContract.EPISODE_LINK, i.getLink());
+        contentValues.put(PodcastProviderContract.DOWNLOAD_LINK, i.getDownloadLink());
+        contentValues.put(PodcastProviderContract.EPISODE_URI, i.getFileUri());
+
+        return contentValues;
     }
 
     public  boolean checkConnection() {

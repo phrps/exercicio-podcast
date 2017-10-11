@@ -17,6 +17,7 @@ public class PodcastProviderContract {
     public static final String DOWNLOAD_LINK = PodcastDBHelper.EPISODE_DOWNLOAD_LINK;
     public static final String EPISODE_URI = PodcastDBHelper.EPISODE_FILE_URI;
     public static final String EPISODE_TABLE = "episodes";
+    public static final String EPISODE_DOWNLOADED_ID = PodcastDBHelper.EPISODE_DOWNLOADED_ID;
 
 
     public final static String[] ALL_COLUMNS = {

@@ -26,6 +26,7 @@ public class DownloadService extends IntentService {
     @Override
     public void onHandleIntent(Intent i) {
         try {
+            Log.d("Download", "Checa Permissão");
             File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             root.mkdirs();
             File output = new File(root, i.getData().getLastPathSegment());
@@ -51,7 +52,13 @@ public class DownloadService extends IntentService {
                 c.disconnect();
             }
 
-            LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(DOWNLOAD_COMPLETE));
+            Intent downloadCompleteBroadCast = new Intent(DOWNLOAD_COMPLETE);
+            // PASSA QUAL LINK DE DOWNLOAD PARA BUSCA NO DB E BUTTONS
+            downloadCompleteBroadCast.putExtra("Downloaded", i.getData().toString());
+            // AVISAR QUE FINALIZOU O DOWNLOAD
+            LocalBroadcastManager.getInstance(this).sendBroadcast(downloadCompleteBroadCast);
+            Log.d("Download", "Download finalizado");
+
 
 
         } catch (IOException e2) {

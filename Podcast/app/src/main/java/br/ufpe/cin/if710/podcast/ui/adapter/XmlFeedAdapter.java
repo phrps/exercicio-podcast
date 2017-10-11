@@ -2,27 +2,36 @@ package br.ufpe.cin.if710.podcast.ui.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.File;
 import java.util.List;
 
 import br.ufpe.cin.if710.podcast.R;
 import br.ufpe.cin.if710.podcast.domain.ItemFeed;
+import br.ufpe.cin.if710.podcast.ui.DownloadService;
 import br.ufpe.cin.if710.podcast.ui.EpisodeDetailActivity;
 
 public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
 
     int linkResource;
     Context context;
+    List<ItemFeed> itemFeedList;
+    MediaPlayer mediaPlayer;
 
     public XmlFeedAdapter(Context context, int resource, List<ItemFeed> objects) {
         super(context, resource, objects);
         linkResource = resource;
         this.context = context;
+        this.itemFeedList = objects;
     }
 
     /**
@@ -83,14 +92,39 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
         holder.item_date.setText(getItem(position).getPubDate());
 
         holder.button = (Button) convertView.findViewById(R.id.item_action);
+        holder.button.setText("Download");
 
         holder.button.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                // Implementar
-            }
+                Log.d("Button","Clicou baixar");
+                if (holder.button.getText() == "Download") {
+                    // Baixar PODCAST
+
+                    holder.button.setEnabled(false);
+                    Intent downloadService = new Intent(context, DownloadService.class);
+                    downloadService.setData(Uri.parse(itemFeedList.get(position).getDownloadLink()));
+
+                    downloadService.addFlags(downloadService.FLAG_ACTIVITY_NEW_TASK);
+                    context.startService(downloadService);
+                    Log.d("Download", "Startou Service");
+                } else if (holder.button.getText() == "Play") {
+                    File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    File audioFile = new File(root, Uri.parse(itemFeedList.get(position).getDownloadLink()).getLastPathSegment());
+                    Uri audioUri = Uri.parse("file://" + audioFile.getAbsolutePath());
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer = MediaPlayer.create(context, audioUri);
+                    mediaPlayer.start();
+                    holder.button.setText("Pause");
+                } else if (holder.button.getText() == "Pause") {
+                    mediaPlayer.pause();
+                    holder.button.setText("Play");
+                }
+
+
         }
+        });
 
 
         return convertView;
