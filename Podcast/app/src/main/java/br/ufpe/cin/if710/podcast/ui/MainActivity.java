@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
@@ -105,7 +104,7 @@ public class MainActivity extends Activity {
             Toast.makeText(getApplicationContext(), "terminando...", Toast.LENGTH_SHORT).show();
 
             //Adapter Personalizado
-            //feed = updateListView();
+            feed = updateListView();
             XmlFeedAdapter adapter = new XmlFeedAdapter(getApplicationContext(), R.layout.itemlista, feed);
 
             items.setAdapter(adapter);
@@ -148,11 +147,11 @@ public class MainActivity extends Activity {
         return rssFeed;
     }
 
-    private boolean isValidString(String string) {
-        if (string == null || string.equals("")) {
-            return false;
+    private String isValidString(String string) {
+        if (string == null) {
+            return ("");
         }
-        return true;
+        return string;
     }
 
     private void storesList(List<ItemFeed> feedList) {
@@ -167,8 +166,6 @@ public class MainActivity extends Activity {
             contentValues.put(PodcastProviderContract.TITLE, isValidString(itemFeed.getTitle()));
 
             getContentResolver().insert(PodcastProviderContract.EPISODE_LIST_URI, contentValues);
-
-            Log.d("STORE ITEM", "Storing item: " + itemFeed.getTitle());
         }
     }
 
@@ -184,7 +181,6 @@ public class MainActivity extends Activity {
                                           cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DATE)),
                                           cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DESCRIPTION)),
                                           cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DOWNLOAD_LINK))));
-                    Log.d("LOAD ITEM", "Loading item: " + cursor.getString(cursor.getColumnIndex(PodcastProviderContract.TITLE)));
                 }
             cursor.close();
         }
