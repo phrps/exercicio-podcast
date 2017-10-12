@@ -20,7 +20,10 @@ public class EpisodeDetailActivity extends Activity  {
         TextView title = (TextView) findViewById(R.id.pcTitle);
         title.setText(itemFeed.getTitle());
         TextView description = (TextView) findViewById(R.id.pcDecription);
-        title.setText(itemFeed.getDescription());
+        description.setText(itemFeed.getDescription());
+        TextView data = (TextView) findViewById(R.id.pcData);
+        data.setText(itemFeed.getPubDate());
+
 
     }
 }

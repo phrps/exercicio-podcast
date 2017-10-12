@@ -92,6 +92,7 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
         holder.item_date.setText(getItem(position).getPubDate());
 
         holder.button = (Button) convertView.findViewById(R.id.item_action);
+
         holder.button.setText("Download");
 
         holder.button.setOnClickListener(new View.OnClickListener() {
@@ -102,12 +103,14 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
                 if (holder.button.getText() == "Download") {
                     // Baixar PODCAST
 
-                    holder.button.setEnabled(false);
                     Intent downloadService = new Intent(context, DownloadService.class);
                     downloadService.setData(Uri.parse(itemFeedList.get(position).getDownloadLink()));
 
                     downloadService.addFlags(downloadService.FLAG_ACTIVITY_NEW_TASK);
                     context.startService(downloadService);
+
+                    holder.button.setText( "Downloading..." );
+                    holder.button.setEnabled(false);
                     Log.d("Download", "Startou Service");
                 } else if (holder.button.getText() == "Play") {
                     File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
