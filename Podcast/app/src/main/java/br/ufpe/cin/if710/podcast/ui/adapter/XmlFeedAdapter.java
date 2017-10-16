@@ -92,8 +92,15 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
         holder.item_date.setText(getItem(position).getPubDate());
 
         holder.button = (Button) convertView.findViewById(R.id.item_action);
+        ItemFeed itemFeed = getItem( position );
+        if (itemFeed.getFileUri() == null || itemFeed.getFileUri().equals( "null" )) {
+            Log.d("Uri","uri: " + itemFeed.getFileUri());
+            holder.button.setText( "Download" );
+        }
+        else {
+            holder.button.setText( "Play" );
+        }
 
-        holder.button.setText("Download");
 
         holder.button.setOnClickListener(new View.OnClickListener() {
 

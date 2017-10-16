@@ -44,12 +44,14 @@ public class MainActivity extends Activity {
     //TODO teste com outros links de podcast
 
     private ListView items;
+    Intent notificationServiceIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         items = (ListView) findViewById(R.id.items);
+        notificationServiceIntent = new Intent( this, NotificationService.class );
     }
 
     @Override
@@ -99,6 +101,7 @@ public class MainActivity extends Activity {
                 itemList = XmlFeedParser.parse(getRssFeed(params[0]));
                 // Armazena lista de itemFeed no db
                 storesList(itemList);
+
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -157,30 +160,53 @@ public class MainActivity extends Activity {
         return rssFeed;
     }
 
-    private String isValidString(String string) {
+    public String isValidString(String string) {
         if (string == null) {
-            return ("");
+            return ("null");
         }
         return string;
     }
 
-    private void storesList(List<ItemFeed> feedList) {
+    public void storesList(List<ItemFeed> feedList) {
+        boolean exist = false;
         for (ItemFeed itemFeed : feedList) {
+
             ContentValues contentValues = new ContentValues();
             // Armazenar o item no db.
             contentValues.put(PodcastProviderContract.DATE, isValidString(itemFeed.getPubDate()));
             contentValues.put(PodcastProviderContract.DESCRIPTION, isValidString(itemFeed.getDescription()));
             contentValues.put(PodcastProviderContract.DOWNLOAD_LINK, isValidString(itemFeed.getDownloadLink()));
-            contentValues.put(PodcastProviderContract.EPISODE_URI, "");
+            contentValues.put(PodcastProviderContract.EPISODE_URI, isValidString(itemFeed.getFileUri()));
             contentValues.put(PodcastProviderContract.EPISODE_LINK, isValidString(itemFeed.getLink()));
             contentValues.put(PodcastProviderContract.TITLE, isValidString(itemFeed.getTitle()));
 
-            getContentResolver().insert(PodcastProviderContract.EPISODE_LIST_URI, contentValues);
+
+            String[] selectionArgs = {itemFeed.getDownloadLink()};
+
+            String selection = PodcastProviderContract.DOWNLOAD_LINK + " =?";
+
+            Cursor cursor = getContentResolver().query(PodcastProviderContract.EPISODE_LIST_URI, null, selection, selectionArgs, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                exist = true;
+                cursor.close();
+            }
+
+            if (exist == false) {
+                Log.d("DB insert", "Inseriu");
+                Log.d("Uri","uri: " + isValidString(itemFeed.getFileUri()));
+                getContentResolver().insert( PodcastProviderContract.EPISODE_LIST_URI, contentValues );
+            }
+            else {
+                Log.d("Uri","uri: " + isValidString(itemFeed.getFileUri()));
+                Log.d("DB insert", "Já tem");
+            }
+            exist = false;
         }
     }
 
     // Atualiza a listView utilizando o DB
-    private List<ItemFeed> updateListView() {
+    public List<ItemFeed> updateListView() {
         List<ItemFeed> list = new ArrayList<>();
         // uso de cursor para pegar os dados no bd.
         Cursor cursor = getContentResolver().query(PodcastProviderContract.EPISODE_LIST_URI,null,null,null,null);
@@ -190,7 +216,8 @@ public class MainActivity extends Activity {
                                             cursor.getString(cursor.getColumnIndex(PodcastProviderContract.EPISODE_LINK)),
                                             cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DATE)),
                                             cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DESCRIPTION)),
-                                            cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DOWNLOAD_LINK))));
+                                            cursor.getString(cursor.getColumnIndex(PodcastProviderContract.DOWNLOAD_LINK)),
+                                            cursor.getString(cursor.getColumnIndex(PodcastProviderContract.EPISODE_URI))));
                 }
             cursor.close();
         }
@@ -203,21 +230,28 @@ public class MainActivity extends Activity {
         super.onResume();
         IntentFilter f = new IntentFilter(DownloadService.DOWNLOAD_COMPLETE);
         LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(onDownloadCompleteEvent, f);
+        // Desliga o intent do notification Service
+        stopService( notificationServiceIntent );
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(onDownloadCompleteEvent);
+        // Inicia o intent do notification Service
+        startService( notificationServiceIntent );
     }
 
     private BroadcastReceiver onDownloadCompleteEvent=new BroadcastReceiver() {
+        @Override
         public void onReceive(Context context, Intent i) {
             Toast.makeText(context, "Download finalizado!", Toast.LENGTH_LONG).show();
             Button button = (Button) findViewById(R.id.item_action);
 
+
             List<ItemFeed> db = updateListView();
             ItemFeed item = null;
+
             for (int j = 0; j < db.size() && item == null; ++j) {
                 Log.d("Atualizar Uri", "Achou no db");
                 if (db.get(j).getDownloadLink().equals(i.getStringExtra("Downloaded"))) {
@@ -230,23 +264,26 @@ public class MainActivity extends Activity {
                     File audioFile = new File(root, Uri.parse(i.getStringExtra("Downloaded")).getLastPathSegment());
 
                     item = db.get(j);
-                    item.setFileUri(Uri.parse("file://" + audioFile.getAbsolutePath()).toString());
-                    ContentValues contentValues = itemFeedToContentValue(item);
+                    Log.d("Update", "Uri Antiga" + "file://" + item.getFileUri());
+                    ItemFeed itemNew = new ItemFeed(item.getTitle(),item.getLink(),item.getPubDate(), item.getDescription(),
+                                                    item.getDownloadLink(), Uri.parse("file://" + audioFile.getAbsolutePath()).toString());
+                    Log.d("Update", "Uri Nova" + item.getFileUri());
+                    ContentValues contentValues = itemFeedToContentValue(itemNew);
 
-                    String selection = PodcastProviderContract.TITLE + " =? AND " + PodcastProviderContract.DATE + " =? AND " +
-                            PodcastProviderContract.DESCRIPTION + " =? AND " + PodcastProviderContract.EPISODE_LINK + " =? AND " +
+                    String selection =
                             PodcastProviderContract.DOWNLOAD_LINK + " =?";
 
-                    String[] selectionArgs = {item.getTitle(), item.getPubDate(), item.getDescription(), item.getLink(), item.getDownloadLink()};
+                    String[] selectionArgs = {item.getDownloadLink()};
 
+                    int row = getContentResolver().update(PodcastProviderContract.EPISODE_LIST_URI, contentValues, selection, selectionArgs);
+                    Log.d("Update Row", String.valueOf( row ));
 
-                    getContentResolver().update(PodcastProviderContract.EPISODE_LIST_URI, contentValues, selection, selectionArgs);
                 }
             }
     }
     };
 
-    ContentValues itemFeedToContentValue(ItemFeed i) {
+    public ContentValues itemFeedToContentValue(ItemFeed i) {
         ContentValues contentValues = new ContentValues();
         contentValues.put(PodcastProviderContract.TITLE, i.getTitle());
         contentValues.put(PodcastProviderContract.DATE, i.getPubDate());
