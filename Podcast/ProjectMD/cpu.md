@@ -1,22 +1,24 @@
-#Consumo de CPU
+# Consumo de CPU
 
 Para esse conjunto de testes foi utilizado o Android Emulator - Nexus 5X_API_26.
 
-![Consumo CPU [Inicialização APP | Informação do Episodio | Download](https://github.com/phrps/exercicio-podcast/tree/master/Podcast/ProjectImg/open_info_download.png) 
+(TODO: Adicionar imagem do Android Monitor (CPU))
 
-##Abrir APP
+## Abrir APP
 Esse teste mostra o consumo da CPU ao abrir o app.
 
 ### Teste
-Para realização desse teste foi aberto o simulador e executado o app pela primeira vez, então usando o Android Monitor para medir
-o uso de CPU para esse caso.
+Para realização desse teste foi aberto o simulador e executado o app pela primeira vez, o teste foi finalizado quando a tela inicial
+da aplicação mostrava todos os episodios.
+Para medir o uso da CPU foi utilizado o Android Monitor.
 
-### Resultados
-O app registrou dois picos de consumo um de 36% e outro de 55%, o primeiro esta relacionado ao download da lista de ItemFeed
-após o download o mesmo é armazenado no database, o segundo pico esta relacionado a o acesso ao database para recuperar a lista de ItemFeed
+### Resultados & Conclusão
+O app registrou dois picos de consumo um de 36% e outro de 55%.
+O primeiro pico foi causado pelo download da lista de ItemFeed e subsequentemente o armazenamento do mesmo em um database.
+O segundo pico foi causo pelo acesso deste database para recuperar as informações. (list<ItemFeed>)
 
 
-###Código
+### Código
 
 Primeiro pico:
 ```java
@@ -114,13 +116,165 @@ Segundo Pico:
 ```
 
 ##Perdir informação do Episodio
+Esse teste mostra o uso da CPU ao ser solicitada informações do episodio.
+
+### Teste
+Para esse teste foi dada a aplicação na tela inicial, medido o uso da CPU do momento que foi requisitada as informações do episodio até
+voltar a tela inicial estar totalmente carregada.
+Para medir o uso da CPU foi utilizado o Android Monitor.
+
+### Resultados & Conclusão
+O app registrou dois picos de consumo um de 25% e outro de 55%.
+O primeiro pico foi causado pela chamada da activity de detalhe de episodio.
+O segundo pico foi causo pelo acesso deste database para recuperar as informações. (list<ItemFeed>)
+
+### Código
+
+```java
+public class EpisodeDetailActivity extends Activity  {
+
+    public static String ITEM_FEED = "itemFeed";
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_episode_detail);
+
+        ItemFeed itemFeed = (ItemFeed) getIntent().getSerializableExtra(ITEM_FEED);
+        TextView title = (TextView) findViewById(R.id.pcTitle);
+        title.setText(itemFeed.getTitle());
+        TextView description = (TextView) findViewById(R.id.pcDecription);
+        description.setText(itemFeed.getDescription());
+        TextView data = (TextView) findViewById(R.id.pcData);
+        data.setText(itemFeed.getPubDate());
+
+
+    }
+}
+```
+
+## Download do Episodio
+Esse teste mostra o uso da CPU ao ser solicitado o download do episodio.
+
+### Teste 
+Para realização desse teste foi aberto a aplicação e então solicitado o download de um Episodio. O teste foi finalizado, quando
+o download foi finalizado e a Uri no Database atualizada.
+
+### Resultados & Conclusão
+
+O teste registrou um pico de 15% do consumo da CPU no instante em que é solicitado o download e um pico de 9% ao final do download.
+Quando solicitado o download, o app chama um IntentService para concluir a ação (TODO: Melhorar resposta).
+Após o fim do download o IntentService envia um broadcast que é recebido pelo broadcastReceiver para que sejá alterado
+o database atualizando a Uri do episodio e notificado ao usuário. Quando a aplicação esta em segundo plano é chamada
+um IntentService (NotificationService), este por sua vez fara o papel do broadcastReceiver da main_activy.
+
+### Código
+
+Primeiro Pico:
+```java
+public class DownloadService extends IntentService {
+
+    public static final String DOWNLOAD_COMPLETE = "br.ufpe.cin.if710.services.action.DOWNLOAD_COMPLETE";
+
+
+    public DownloadService() {
+        super("DownloadService");
+    }
+
+    @Override
+    public void onHandleIntent(Intent i) {
+        try {
+            Log.d("Download", "Checa Permissão");
+            File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            root.mkdirs();
+            File output = new File(root, i.getData().getLastPathSegment());
+            if (output.exists()) {
+                output.delete();
+            }
+            URL url = new URL(i.getData().toString());
+            HttpURLConnection c = (HttpURLConnection) url.openConnection();
+            FileOutputStream fos = new FileOutputStream(output.getPath());
+            BufferedOutputStream out = new BufferedOutputStream(fos);
+            try {
+                InputStream in = c.getInputStream();
+                byte[] buffer = new byte[8192];
+                int len = 0;
+                while ((len = in.read(buffer)) >= 0) {
+                    out.write(buffer, 0, len);
+                }
+                out.flush();
+            }
+            finally {
+                fos.getFD().sync();
+                out.close();
+                c.disconnect();
+            }
+
+            Intent downloadCompleteBroadCast = new Intent(DOWNLOAD_COMPLETE);
+            // PASSA QUAL LINK DE DOWNLOAD PARA BUSCA NO DB E BUTTONS
+            downloadCompleteBroadCast.putExtra("Downloaded", i.getData().toString());
+            // AVISAR QUE FINALIZOU O DOWNLOAD
+            LocalBroadcastManager.getInstance(this).sendBroadcast(downloadCompleteBroadCast);
+            Log.d("Download", "Download finalizado");
+
+
+
+        } catch (IOException e2) {
+            Log.e(getClass().getName(), "Exception durante download", e2);
+        }
+    }
+}
+```
+
+Segundo Pico:
+```java
+ private BroadcastReceiver onDownloadCompleteEvent=new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent i) {
+            Toast.makeText(context, "Download finalizado!", Toast.LENGTH_LONG).show();
+
+
+            List<ItemFeed> db = updateListView();
+            ItemFeed item = null;
+
+            for (int j = 0; j < db.size() && item == null; ++j) {
+                Log.d("Atualizar Uri", "Achou no db");
+                if (db.get(j).getDownloadLink().equals(i.getStringExtra("Downloaded"))) {
+
+
+                    File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    File audioFile = new File(root, Uri.parse(i.getStringExtra("Downloaded")).getLastPathSegment());
+
+                    item = db.get(j);
+                    Log.d("Update", "Uri Antiga" + "file://" + item.getFileUri());
+                    ItemFeed itemNew = new ItemFeed(item.getTitle(),item.getLink(),item.getPubDate(), item.getDescription(),
+                            item.getDownloadLink(), Uri.parse("file://" + audioFile.getAbsolutePath()).toString());
+                    Log.d("Update", "Uri Nova" + item.getFileUri());
+                    ContentValues contentValues = itemFeedToContentValue(itemNew);
+
+                    NotificationManager notif = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    notif.notify( 1, notificationBuilder.build());
+
+                    String selection =
+                            PodcastProviderContract.DOWNLOAD_LINK + " =?";
+
+                    String[] selectionArgs = {item.getDownloadLink()};
+
+                    int row = getContentResolver().update(PodcastProviderContract.EPISODE_LIST_URI, contentValues, selection, selectionArgs);
+                    Log.d("Update Row", String.valueOf( row ));
+
+                }
+            }
+        }
+    };
+```
+## Reproduzir Episodio
+Esse teste mostra o uso da CPU ao ser reproduzido um episodio baixado.
 
 ### Teste
 
-### Resultados
+### Resultados & Conclusão
 
-##Download do Episodio
+### Código
 
-##Reproduzir Episodio
-
-##Scroll
+```java
+```
