@@ -1,13 +1,25 @@
 #Consumo de CPU
 
-##Abrir APP
+Para esse conjunto de testes foi utilizado o Android Emulator - Nexus 5X_API_26.
 
+![Consumo CPU [Inicialização APP | Informação do Episodio | Download](https://github.com/phrps/exercicio-podcast/tree/master/Podcast/ProjectImg/open_info_download.png) 
+
+##Abrir APP
+Esse teste mostra o consumo da CPU ao abrir o app.
+
+### Teste
+Para realização desse teste foi aberto o simulador e executado o app pela primeira vez, então usando o Android Monitor para medir
+o uso de CPU para esse caso.
+
+### Resultados
 O app registrou dois picos de consumo um de 36% e outro de 55%, o primeiro esta relacionado ao download da lista de ItemFeed
 após o download o mesmo é armazenado no database, o segundo pico esta relacionado a o acesso ao database para recuperar a lista de ItemFeed
+
 
 ###Código
 
 Primeiro pico:
+```java
     protected void onPreExecute() {
             Toast.makeText(getApplicationContext(), "Iniciando app...", Toast.LENGTH_SHORT).show();
         }
@@ -65,11 +77,11 @@ Primeiro pico:
 				exist = false;
 			}
 		}
-		
+```	
 		
 		
 Segundo Pico:
-
+```java
         protected void onPostExecute(List<ItemFeed> feed) {
             Toast.makeText(getApplicationContext(), "terminando...", Toast.LENGTH_SHORT).show();
 
@@ -99,9 +111,13 @@ Segundo Pico:
 
         return list;
     }
-
+```
 
 ##Perdir informação do Episodio
+
+### Teste
+
+### Resultados
 
 ##Download do Episodio
 
