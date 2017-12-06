@@ -1,6 +1,6 @@
 # Consumo de CPU
 
-Para esse conjunto de testes foi utilizado o Android Emulator - Nexus 5X_API_26.
+Para esse conjunto de testes foi utilizado o Android Emulator - Nexus 5X_API_26 e Android Monitor.
 
 (TODO: Adicionar imagem do Android Monitor (CPU))
 
@@ -13,7 +13,7 @@ da aplicação mostrava todos os episodios.
 Para medir o uso da CPU foi utilizado o Android Monitor.
 
 ### Resultados & Conclusão
-O app registrou dois picos de consumo um de 36% e outro de 55%.
+O app registrou dois picos de consumo um de 42% e outro de 58%.
 O primeiro pico foi causado pelo download da lista de ItemFeed e subsequentemente o armazenamento do mesmo em um database.
 O segundo pico foi causo pelo acesso deste database para recuperar as informações. (list<ItemFeed>)
 
@@ -161,8 +161,8 @@ o download foi finalizado e a Uri no Database atualizada.
 
 ### Resultados & Conclusão
 
-O teste registrou um pico de 15% do consumo da CPU no instante em que é solicitado o download e um pico de 9% ao final do download.
-Quando solicitado o download, o app chama um IntentService para concluir a ação (TODO: Melhorar resposta).
+O teste registrou um pico de 62% do consumo da CPU no instante em que é solicitado o download e um pico de 52% ao final do download.
+Quando solicitado o download, o app chama um IntentService para concluir a ação... (TODO: MELHORAR)
 Após o fim do download o IntentService envia um broadcast que é recebido pelo broadcastReceiver para que sejá alterado
 o database atualizando a Uri do episodio e notificado ao usuário. Quando a aplicação esta em segundo plano é chamada
 um IntentService (NotificationService), este por sua vez fara o papel do broadcastReceiver da main_activy.
@@ -274,7 +274,24 @@ Esse teste mostra o uso da CPU ao ser reproduzido um episodio baixado.
 
 ### Resultados & Conclusão
 
+O teste registrou um pico de 26% no uso da CPU no momento que o usuário clica no play, mas durante a reprodução o uso da CPU foi abaixo dos 2%.
+No momento que o usuário solicita a reprodução do episodio o objeto mediaPlayer é inicializado utilizando a uri do episodio e o butão é alterado o texto.
+Por sua vez o MediaPlayer passa a responsabilidade de reprodução ao sistema, assim o uso da CPU é provido pelo sistema e não pela aplicação.
+
+
 ### Código
 
 ```java
+if (holder.button.getText() == "Play") {
+                    File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    File audioFile = new File(root, Uri.parse(itemFeedList.get(position).getDownloadLink()).getLastPathSegment());
+                    Uri audioUri = Uri.parse("file://" + audioFile.getAbsolutePath());
+                    mediaPlayer = new MediaPlayer();
+                    mediaPlayer = MediaPlayer.create(context, audioUri);
+                    mediaPlayer.start();
+                    holder.button.setText("Pause");
+                } else if (holder.button.getText() == "Pause") {
+                    mediaPlayer.pause();
+                    holder.button.setText("Play");
+                }
 ```
