@@ -73,16 +73,8 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
         if (convertView == null) {
             convertView = View.inflate(getContext(), linkResource, null);
             holder = new ViewHolder();
-
             convertView.setTag(holder);
-            convertView.setOnClickListener(new View.OnClickListener() {
-                 @Override
-                 public void onClick(View v) {
-                   Intent intent = new Intent(context, EpisodeDetailActivity.class);
-                   intent.putExtra(EpisodeDetailActivity.ITEM_FEED, getItem(position));
-                   context.startActivity(intent);
-                 }
-             });
+
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
@@ -92,7 +84,7 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
         holder.item_date.setText(getItem(position).getPubDate());
 
         holder.button = (Button) convertView.findViewById(R.id.item_action);
-        ItemFeed itemFeed = getItem( position );
+        final ItemFeed itemFeed = getItem( position );
         if (itemFeed.getFileUri() == null || itemFeed.getFileUri().equals( "null" )) {
             Log.d("Uri","uri: " + itemFeed.getFileUri());
             holder.button.setText( "Download" );
@@ -101,6 +93,14 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
             holder.button.setText( "Play" );
         }
 
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, EpisodeDetailActivity.class);
+                intent.putExtra(EpisodeDetailActivity.ITEM_FEED, itemFeed);
+                context.startActivity(intent);
+            }
+        });
 
         holder.button.setOnClickListener(new View.OnClickListener() {
 

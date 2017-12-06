@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -45,6 +46,7 @@ public class MainActivity extends Activity {
 
     private ListView items;
     Intent notificationServiceIntent;
+    MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -256,10 +258,6 @@ public class MainActivity extends Activity {
                 Log.d("Atualizar Uri", "Achou no db");
                 if (db.get(j).getDownloadLink().equals(i.getStringExtra("Downloaded"))) {
                     // Atualiza DB e ativa botão de play
-                    button.setText("Play");
-                    button.setEnabled(true);
-
-
                     File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                     File audioFile = new File(root, Uri.parse(i.getStringExtra("Downloaded")).getLastPathSegment());
 
@@ -277,7 +275,7 @@ public class MainActivity extends Activity {
 
                     int row = getContentResolver().update(PodcastProviderContract.EPISODE_LIST_URI, contentValues, selection, selectionArgs);
                     Log.d("Update Row", String.valueOf( row ));
-
+                    
                 }
             }
     }
