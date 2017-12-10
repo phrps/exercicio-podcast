@@ -3,7 +3,7 @@
 Para esse conjunto de testes foi utilizado o Android Emulator - Nexus 5X_API_26 e Android Monitor.
 
 [    imagem  cpu_open_info_download    ]:<> 
-![alt text] (https://github.com/phrps/exercicio-podcast/tree/master/Podcast/cpu_open_info_download.png)
+![alt text] (https://github.com/phrps/exercicio-podcast/blob/master/Podcast/ProjectImg/cpu_open_info_download.png)
 #####Abrir App: 0-4s
 #####Pedir Info: 5-8s
 #####Leitura do DB para retorno a tela inicial: 9-13s
@@ -11,7 +11,7 @@ Para esse conjunto de testes foi utilizado o Android Emulator - Nexus 5X_API_26 
 
 
 [    imagem  cpu_downloaded_noti_play.png  ]:<> 
-![alt text] (https://github.com/phrps/exercicio-podcast/tree/master/Podcast/cpu_downloaded_noti_play.png)
+![alt text] (https://github.com/phrps/exercicio-podcast/blob/master/Podcast/ProjectImg/cpu_downloaded_noti_play.png)
 #####Download: 2m15s-2m.24s.
 #####Atualização do DB: 2m.25s-2m.26s
 #####Reabetura do app: 2m.33-2m.37s.
@@ -26,11 +26,9 @@ da aplicação mostrava todos os episodios.
 Para medir o uso da CPU foi utilizado o Android Monitor.
 
 ### Resultados & Conclusão
-O app registrou dois picos de consumo um de 27% e outro de 48%.
-O primeiro pico foi causado pelo download da lista de ItemFeed e subsequentemente o armazenamento do mesmo em um database, para esse armazenamento o contentProvider é chamado para cada elemento da lista
+O app registrou dois picos de consumo um de 27% e outro de 52%.
+O primeiro pico foi causado pelo download da lista de de podcast. O segundo pico foi causo pelo armazenamento do mesmo em um database, para esse armazenamento o contentProvider é chamado para cada elemento da lista
 , assim gastando um alto processamento, uma solução para esse problema é a utilização de um Bulk Insert. 
-O segundo pico foi causo pelo acesso deste database para recuperar as informações, . (list<ItemFeed>)
-
 
 ### Código
 
@@ -138,9 +136,9 @@ voltar a tela inicial estar totalmente carregada.
 Para medir o uso da CPU foi utilizado o Android Monitor.
 
 ### Resultados & Conclusão
-O app registrou dois picos de consumo um de 25% e outro de 55%.
+O app registrou dois picos de consumo um de 17% e outro de 53%.
 O primeiro pico foi causado pela chamada da activity de detalhe de episodio.
-O segundo pico foi causo pelo acesso deste database para recuperar as informações. (list<ItemFeed>)
+O segundo pico foi causo pelo acesso deste database para recuperar as informações do episodios de podcast.
 
 ### Código
 
@@ -175,7 +173,7 @@ o download foi finalizado e a Uri no Database atualizada.
 
 ### Resultados & Conclusão
 
-O teste registrou um pico de 62% do consumo da CPU no instante em que é solicitado o download e um pico de 52% ao final do download.
+O teste registrou um pico de 19% do consumo da CPU no instante em que é solicitado o download e um pico de 18% ao final do download.
 Quando solicitado o download, o app chama um IntentService para concluir a ação o que causa esse alto consumo, uma solução seria a utilização
 de um download manager, este por sua vez passa a responsabilidade do download ao sistema.
 Após o fim do download o IntentService envia um broadcast que é recebido pelo broadcastReceiver para que sejá alterado
@@ -289,7 +287,7 @@ Esse teste mostra o uso da CPU ao ser reproduzido um episodio baixado.
 
 ### Resultados & Conclusão
 
-O teste registrou um pico de 26% no uso da CPU no momento que o usuário clica no play, mas durante a reprodução o uso da CPU foi abaixo dos 2%.
+O teste registrou um pico de 19% no uso da CPU no momento que o usuário clica no play, mas durante a reprodução o uso da CPU foi abaixo dos 2%.
 No momento que o usuário solicita a reprodução do episodio o objeto mediaPlayer é inicializado utilizando a uri do episodio e o butão é alterado o texto.
 Por sua vez o MediaPlayer passa a responsabilidade de reprodução ao sistema, assim o uso da CPU é provido pelo sistema e não pela aplicação.
 
