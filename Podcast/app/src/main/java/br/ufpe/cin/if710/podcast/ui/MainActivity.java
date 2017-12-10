@@ -159,9 +159,8 @@ public class MainActivity extends Activity {
 
     public void storesList(List<ItemFeed> feedList) {
         boolean exist = false;
-        for (ItemFeed itemFeed : feedList) {
-
-            ContentValues contentValues = new ContentValues();
+            for (ItemFeed itemFeed : feedList) {
+                ContentValues contentValues = new ContentValues();
             // Armazenar o item no db.
             contentValues.put(PodcastProviderContract.DATE, isValidString(itemFeed.getPubDate()));
             contentValues.put(PodcastProviderContract.DESCRIPTION, isValidString(itemFeed.getDescription()));
