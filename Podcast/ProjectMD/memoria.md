@@ -8,8 +8,6 @@ Para esse conjunto de testes foi utilizado o Android Emulator - Nexus 5X_API_26 
 
 ## Perdir informação do Episodio
 
-## Download do Episodio
-
 ## Reproduzir Episodio
 Esse teste mostra o consumo de Memoria ao reproduzir um episodio.
 
@@ -38,6 +36,3 @@ if (holder.button.getText() == "Play") {
                     holder.button.setText("Play");
                 }
 ```
-
-
-## Abrir Settings

@@ -2,7 +2,20 @@
 
 Para esse conjunto de testes foi utilizado o Android Emulator - Nexus 5X_API_26 e Android Monitor.
 
-(TODO: Adicionar imagem do Android Monitor (CPU))
+[    imagem  cpu_open_info_download    ]:<> 
+![alt text] (https://github.com/phrps/exercicio-podcast/tree/master/Podcast/cpu_open_info_download.png)
+Abrir App: 0-4s
+Pedir Info: 5-8s
+Leitura do DB para retorno a tela inicial: 9-13s
+Download: 14-1m9s
+
+
+[    imagem  cpu_downloaded_noti_play.png  ]:<> 
+![alt text] (https://github.com/phrps/exercicio-podcast/tree/master/Podcast/cpu_downloaded_noti_play.png)
+Download: 2m15s-2m.24s.
+Atualização do DB: 2m.25s-2m.26s
+Reabetura do app: 2m.33-2m.37s.
+Play: 2m.42s-3m.20s.
 
 ## Abrir APP
 Esse teste mostra o consumo da CPU ao abrir o app.
@@ -13,9 +26,10 @@ da aplicação mostrava todos os episodios.
 Para medir o uso da CPU foi utilizado o Android Monitor.
 
 ### Resultados & Conclusão
-O app registrou dois picos de consumo um de 42% e outro de 58%.
-O primeiro pico foi causado pelo download da lista de ItemFeed e subsequentemente o armazenamento do mesmo em um database.
-O segundo pico foi causo pelo acesso deste database para recuperar as informações. (list<ItemFeed>)
+O app registrou dois picos de consumo um de 27% e outro de 48%.
+O primeiro pico foi causado pelo download da lista de ItemFeed e subsequentemente o armazenamento do mesmo em um database, para esse armazenamento o contentProvider é chamado para cada elemento da lista
+, assim gastando um alto processamento, uma solução para esse problema é a utilização de um Bulk Insert. 
+O segundo pico foi causo pelo acesso deste database para recuperar as informações, . (list<ItemFeed>)
 
 
 ### Código
@@ -162,7 +176,8 @@ o download foi finalizado e a Uri no Database atualizada.
 ### Resultados & Conclusão
 
 O teste registrou um pico de 62% do consumo da CPU no instante em que é solicitado o download e um pico de 52% ao final do download.
-Quando solicitado o download, o app chama um IntentService para concluir a ação... (TODO: MELHORAR)
+Quando solicitado o download, o app chama um IntentService para concluir a ação o que causa esse alto consumo, uma solução seria a utilização
+de um download manager, este por sua vez passa a responsabilidade do download ao sistema.
 Após o fim do download o IntentService envia um broadcast que é recebido pelo broadcastReceiver para que sejá alterado
 o database atualizando a Uri do episodio e notificado ao usuário. Quando a aplicação esta em segundo plano é chamada
 um IntentService (NotificationService), este por sua vez fara o papel do broadcastReceiver da main_activy.
