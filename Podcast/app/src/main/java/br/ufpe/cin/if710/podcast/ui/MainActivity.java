@@ -235,35 +235,37 @@ public class MainActivity extends Activity {
         public void onReceive(Context context, Intent i) {
             Toast.makeText(context, "Download finalizado!", Toast.LENGTH_LONG).show();
             Button button = (Button) findViewById(R.id.item_action);
-
+            button.setEnabled(true);
+            button.setText( "Play" );
 
             List<ItemFeed> db = updateListView();
             ItemFeed item = null;
 
             for (int j = 0; j < db.size() && item == null; ++j) {
-                Log.d("Atualizar Uri", "Achou no db");
-                if (db.get(j).getDownloadLink().equals(i.getStringExtra("Downloaded"))) {
+                Log.d( "Atualizar Uri", "Achou no db" );
+                if (db.get( j ).getDownloadLink().equals( i.getStringExtra( "Downloaded" ) )) {
                     // Atualiza DB e ativa botão de play
-                    File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                    File audioFile = new File(root, Uri.parse(i.getStringExtra("Downloaded")).getLastPathSegment());
+                    File root = Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_DOWNLOADS );
+                    File audioFile = new File( root, Uri.parse( i.getStringExtra( "Downloaded" ) ).getLastPathSegment() );
 
-                    item = db.get(j);
-                    Log.d("Update", "Uri Antiga" + "file://" + item.getFileUri());
-                    ItemFeed itemNew = new ItemFeed(item.getTitle(),item.getLink(),item.getPubDate(), item.getDescription(),
-                                                    item.getDownloadLink(), Uri.parse("file://" + audioFile.getAbsolutePath()).toString());
-                    Log.d("Update", "Uri Nova" + item.getFileUri());
-                    ContentValues contentValues = itemFeedToContentValue(itemNew);
+                    item = db.get( j );
+                    Log.d( "Update", "Uri Antiga" + "file://" + item.getFileUri() );
+                    ItemFeed itemNew = new ItemFeed( item.getTitle(), item.getLink(), item.getPubDate(), item.getDescription(),
+                            item.getDownloadLink(), Uri.parse( "file://" + audioFile.getAbsolutePath() ).toString() );
+                    Log.d( "Update", "Uri Nova" + item.getFileUri() );
+                    ContentValues contentValues = itemFeedToContentValue( itemNew );
 
                     String selection =
                             PodcastProviderContract.DOWNLOAD_LINK + " =?";
 
                     String[] selectionArgs = {item.getDownloadLink()};
 
-                    int row = getContentResolver().update(PodcastProviderContract.EPISODE_LIST_URI, contentValues, selection, selectionArgs);
-                    Log.d("Update Row", String.valueOf( row ));
-                    
+                    int row = getContentResolver().update( PodcastProviderContract.EPISODE_LIST_URI, contentValues, selection, selectionArgs );
+                    Log.d( "Update Row", String.valueOf( row ) );
+
                 }
             }
+
     }
     };
 

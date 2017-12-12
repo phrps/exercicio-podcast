@@ -59,8 +59,6 @@ public class DownloadService extends IntentService {
             LocalBroadcastManager.getInstance(this).sendBroadcast(downloadCompleteBroadCast);
             Log.d("Download", "Download finalizado");
 
-
-
         } catch (IOException e2) {
             Log.e(getClass().getName(), "Exception durante download", e2);
         }
