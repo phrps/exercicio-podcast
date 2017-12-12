@@ -169,7 +169,6 @@ public class MainActivity extends Activity {
             contentValues.put(PodcastProviderContract.EPISODE_LINK, isValidString(itemFeed.getLink()));
             contentValues.put(PodcastProviderContract.TITLE, isValidString(itemFeed.getTitle()));
 
-
             String[] selectionArgs = {itemFeed.getDownloadLink()};
 
             String selection = PodcastProviderContract.DOWNLOAD_LINK + " =?";
