@@ -100,11 +100,12 @@ public class MainActivity extends Activity {
         protected List<ItemFeed> doInBackground(String... params) {
             List<ItemFeed> itemList = new ArrayList<>();
             try {
-                itemList = XmlFeedParser.parse(getRssFeed(params[0]));
-                // Armazena lista de itemFeed no db
-                storesList(itemList);
-
-
+                itemList = updateListView();
+                if (itemList.isEmpty()) {
+                    itemList = XmlFeedParser.parse( getRssFeed( params[0] ) );
+                    // Armazena lista de itemFeed no db
+                    storesList( itemList );
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (XmlPullParserException e) {
