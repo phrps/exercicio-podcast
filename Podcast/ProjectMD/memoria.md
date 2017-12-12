@@ -15,9 +15,14 @@ Para esse conjunto de testes foi utilizado o Android Emulator - Nexus 5X_API_26 
 #####Reabetura do app: 2m.33-2m.37s.
 #####Play: 2m.42s-3m.20s.
 
-## Abrir App
-
 ## Perdir informação do Episodio
+Esse teste mostra o consumo de Memoria ao abrir tela de informações de um episodio.
+
+### Teste
+
+### Resultados && Conclusões
+O teste registrou dois aumentos no uso da memória, o primeiro relacionado ao acessar as informações do episodio (EpisodioDetailActivity), mas sendo apenas um pequeno aumento não significativo, pórem
+, o segundo aumento do uso da memória foi relevante, este esta relacionado a volta a MainActivity. Este aumento é justicado pelo carregamento da MainActivity e destruição do EpisodioDetailActivity.
 
 ## Reproduzir Episodio
 Esse teste mostra o consumo de Memoria ao reproduzir um episodio.
