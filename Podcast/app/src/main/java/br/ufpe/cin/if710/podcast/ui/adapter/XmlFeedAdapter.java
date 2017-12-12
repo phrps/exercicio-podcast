@@ -129,6 +129,7 @@ public class XmlFeedAdapter extends ArrayAdapter<ItemFeed> {
                     holder.button.setText("Pause");
                 } else if (holder.button.getText() == "Pause") {
                     mediaPlayer.pause();
+                    mediaPlayer.release();
                     holder.button.setText("Play");
                 }
 
