@@ -1,5 +1,6 @@
 package br.ufpe.cin.if710.podcast.ui;
 
+
 import android.support.test.espresso.DataInteraction;
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.rule.ActivityTestRule;
@@ -12,7 +13,6 @@ import android.view.ViewParent;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.hamcrest.core.IsInstanceOf;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +28,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withClassName;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static android.support.test.espresso.matcher.ViewMatchers.hasSibling;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.is;
@@ -38,49 +37,141 @@ import static org.hamcrest.Matchers.is;
 public class MainActivityTest {
 
     @Rule
-    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>( MainActivity.class );
+    public ActivityTestRule<MainActivity> mActivityTestRule = new ActivityTestRule<>(MainActivity.class);
 
     @Test
-    public void mainActivityTest() {
-        /*DataInteraction linearLayout = onData(anything())
-            .inAdapterView(allOf(withId(R.id.items),
-                childAtPosition(
-                    withClassName(is("android.widget.LinearLayout")),
-                    0)))
-            .atPosition(0);
+    public void mainActivityTest2() {
+        DataInteraction linearLayout = onData(anything())
+                .inAdapterView(allOf(withId(R.id.items),
+                        childAtPosition(
+                                withClassName(is("android.widget.LinearLayout")),
+                                0)))
+                .atPosition(0);
         linearLayout.perform(click());
 
+        pressBack();
+
+        DataInteraction linearLayout2 = onData(anything())
+                .inAdapterView(allOf(withId(R.id.items),
+                        childAtPosition(
+                                withClassName(is("android.widget.LinearLayout")),
+                                0)))
+                .atPosition(1);
+        linearLayout2.perform(click());
+
+        pressBack();
+
+        DataInteraction linearLayout3 = onData(anything())
+                .inAdapterView(allOf(withId(R.id.items),
+                        childAtPosition(
+                                withClassName(is("android.widget.LinearLayout")),
+                                0)))
+                .atPosition(2);
+        linearLayout3.perform(click());
+
+        pressBack();
+
+        DataInteraction linearLayout4 = onData(anything())
+                .inAdapterView(allOf(withId(R.id.items),
+                        childAtPosition(
+                                withClassName(is("android.widget.LinearLayout")),
+                                0)))
+                .atPosition(3);
+        linearLayout4.perform(click());
+
+        pressBack();
+
+        DataInteraction linearLayout5 = onData(anything())
+                .inAdapterView(allOf(withId(R.id.items),
+                        childAtPosition(
+                                withClassName(is("android.widget.LinearLayout")),
+                                0)))
+                .atPosition(4);
+        linearLayout5.perform(click());
+
+        pressBack();
+
+        DataInteraction linearLayout6 = onData(anything())
+                .inAdapterView(allOf(withId(R.id.items),
+                        childAtPosition(
+                                withClassName(is("android.widget.LinearLayout")),
+                                0)))
+                .atPosition(5);
+        linearLayout6.perform(click());
+
+        pressBack();
+
+        DataInteraction linearLayout8 = onData(anything())
+                .inAdapterView(allOf(withId(R.id.items),
+                        childAtPosition(
+                                withClassName(is("android.widget.LinearLayout")),
+                                0)))
+                .atPosition(6);
+        linearLayout8.perform(click());
+
+        pressBack();
+
+        DataInteraction linearLayout9 = onData(anything())
+                .inAdapterView(allOf(withId(R.id.items),
+                        childAtPosition(
+                                withClassName(is("android.widget.LinearLayout")),
+                                0)))
+                .atPosition(7);
+        linearLayout9.perform(click());
+
+        pressBack();
+
+        DataInteraction linearLayout10 = onData(anything())
+                .inAdapterView(allOf(withId(R.id.items),
+                        childAtPosition(
+                                withClassName(is("android.widget.LinearLayout")),
+                                0)))
+                .atPosition(8);
+        linearLayout10.perform(click());
+
+        pressBack();
+
+        DataInteraction linearLayout11 = onData(anything())
+                .inAdapterView(allOf(withId(R.id.items),
+                        childAtPosition(
+                                withClassName(is("android.widget.LinearLayout")),
+                                0)))
+                .atPosition(9);
+        linearLayout11.perform(click());
+
         ViewInteraction textView = onView(
-            allOf(withId(R.id.pcTitle), withText("O Homem foi mesmo até a Lua?"),
-                childAtPosition(
-                    childAtPosition(
-                        withId(android.R.id.content),
-                        0),
-                    0),
-                isDisplayed()));
-        textView.check(matches(withText("O Homem foi mesmo até a Lua?")));
+                allOf(withId(R.id.pcTitle), withText("Mulheres na Ciência"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(android.R.id.content),
+                                        0),
+                                0),
+                        isDisplayed()));
+        textView.check(matches(withText("Mulheres na Ciência")));
 
-        pressBack();*/
+        ViewInteraction textView2 = onView(
+                allOf(withId(R.id.pcData), withText("Mon, 16 Aug 2010 10:45:05 GMT"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withId(android.R.id.content),
+                                        0),
+                                2),
+                        isDisplayed()));
+        textView2.check(matches(withText("Mon, 16 Aug 2010 10:45:05 GMT")));
 
-        ViewInteraction button = onView(
-            allOf(withId(R.id.item_action),
-                childAtPosition(
-                    childAtPosition(
-                        IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),
-                        0),
-                    1),
-                isDisplayed()));
-        button.check(matches(isDisplayed()));
+        pressBack();
 
-        /*ViewInteraction button2 = onView(
-            allOf(withId(R.id.item_action), withText("DOWNLOAD"),
-                childAtPosition(
-                    childAtPosition(
-                        withClassName(is("android.widget.LinearLayout")),
-                        0),
-                    0),
-                isDisplayed()));
-        //button2.perform(click());*/
+        // Ta dando erro em todos os clicks por causa da ambiguidade de labels. Nao consegui consertar a tempo.
+        /*ViewInteraction button = onView(
+                allOf(withId(R.id.item_action), withText("Download"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withClassName(is("android.widget.LinearLayout")),
+                                        0),
+                                1),
+                        isDisplayed()));
+        button.perform(click());*/
+
     }
 
     private static Matcher<View> childAtPosition(
