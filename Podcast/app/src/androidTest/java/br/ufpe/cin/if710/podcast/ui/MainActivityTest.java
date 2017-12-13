@@ -13,14 +13,17 @@ import android.view.ViewParent;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import br.ufpe.cin.if710.podcast.R;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
 import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static android.support.test.espresso.Espresso.pressBack;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
@@ -168,9 +171,52 @@ public class MainActivityTest {
                                 childAtPosition(
                                         withClassName(is("android.widget.LinearLayout")),
                                         0),
-                                1),
+                                0),
                         isDisplayed()));
         button.perform(click());*/
+
+        openActionBarOverflowOrOptionsMenu(getInstrumentation().getTargetContext());
+
+        ViewInteraction textView6 = onView(
+                allOf(withId(android.R.id.title), withText("Settings"),
+                        childAtPosition(
+                                childAtPosition(
+                                        IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),
+                                        0),
+                                0),
+                        isDisplayed()));
+        textView6.check(matches(withText("Settings")));
+
+        ViewInteraction textView4 = onView(
+                allOf(withId(android.R.id.title), withText("Settings"),
+                        childAtPosition(
+                                childAtPosition(
+                                        withClassName(is("com.android.internal.view.menu.ListMenuItemView")),
+                                        0),
+                                0),
+                        isDisplayed()));
+        textView4.perform(click());
+
+        ViewInteraction listView = onView(
+                allOf(withId(android.R.id.list),
+                        childAtPosition(
+                                allOf(withId(android.R.id.list_container),
+                                        childAtPosition(
+                                                withId(R.id.userPreferenceFragment),
+                                                0)),
+                                0),
+                        isDisplayed()));
+        listView.check(matches(isDisplayed()));
+
+        ViewInteraction textView5 = onView(
+                allOf(withId(android.R.id.summary), withText("http://leopoldomt.com/if710/fronteirasdaciencia.xml"),
+                        childAtPosition(
+                                childAtPosition(
+                                        IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),
+                                        1),
+                                1),
+                        isDisplayed()));
+        textView5.check(matches(withText("http://leopoldomt.com/if710/fronteirasdaciencia.xml")));
 
     }
 
