@@ -52,3 +52,7 @@ if (holder.button.getText() == "Play") {
                     holder.button.setText("Play");
                 }
 ```
+
+## LeakCanary
+
+Não foi encontrado nenhum leak usando o LeakCanary, porém acredita-se que possa ser um erro no setup deste.
