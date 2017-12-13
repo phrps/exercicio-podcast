@@ -3,17 +3,17 @@
 Para esse conjunto de testes foi utilizado o Android Emulator - Nexus 5X_API_26 e o Android Monitor. 
 
 ![alt text](https://github.com/phrps/exercicio-podcast/blob/master/Podcast/ProjectImg/memoria_open_info_download.png)
-#####Abrir App: 0-4s
-#####Pedir Info: 5-8s
-#####Leitura do DB para retorno a tela inicial: 9-13s
-#####Download: 14-1m9s
+##### Abrir App: 0-4s
+##### Pedir Info: 5-8s
+##### Leitura do DB para retorno a tela inicial: 9-13s
+##### Download: 14-1m9s
 
 
 ![alt text](https://github.com/phrps/exercicio-podcast/blob/master/Podcast/ProjectImg/memoria_downloaded_noti_play.png)
-#####Download: 2m15s-2m.24s.
-#####Atualização do DB: 2m.25s-2m.26s
-#####Reabetura do app: 2m.33-2m.37s.
-#####Play: 2m.42s-3m.20s.
+##### Download: 2m15s-2m.24s.
+##### Atualização do DB: 2m.25s-2m.26s
+##### Reabetura do app: 2m.33-2m.37s.
+##### Play: 2m.42s-3m.20s.
 
 ## Perdir informação do Episodio
 Esse teste mostra o consumo de Memoria ao abrir tela de informações de um episodio.
